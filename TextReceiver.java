@@ -49,8 +49,8 @@ public class TextReceiver {
 
             try{
                 //Receive a DatagramPacket
-                byte[] buffer = new byte[514];
-                DatagramPacket packet = new DatagramPacket(buffer, 0, 514);
+                byte[] buffer = new byte[520];
+                DatagramPacket packet = new DatagramPacket(buffer, 0, 520);
                 receiving_socket.setSoTimeout(33);
 
                 receiving_socket.receive(packet);
@@ -60,10 +60,16 @@ public class TextReceiver {
                 ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
 
                 ByteBuffer cipherText = ByteBuffer.wrap(audio);
+
+                //PACKET NUMBERING
+                float packetNumber = cipherText.getFloat();
+                System.out.println(packetNumber);
+                //END PACKET NUMBERING
+
                 if (cipherText.getShort() == 10)
                 {
                     int key = 1073948859;
-                    for (int j = 0; j < audio.length/4; j++)
+                    for (int j = 0; j < (audio.length/4)-6; j++) //-6 so increased packet length from packet numbering doesn't interfere
                     {
                         int fourByte = cipherText.getInt();
                         fourByte = fourByte ^ key;

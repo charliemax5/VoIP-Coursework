@@ -68,14 +68,20 @@ public class TextSender{
         System.out.println("Recording audio...");
         int key = 1073948859; //key should be between 2^30 and 2^31 to cover all bits
         short authenticationKey = 10; //authentication key must be a short so receiver can remove it from packet
+        float packetNumber = 0;
 
         for (int i = 0; i < Math.ceil(recordTime / 0.032); i++) {
             try{
 
                 byte[] buffer = recorder.getBlock();
-                ByteBuffer unwrapEncrypt = ByteBuffer.allocate(514);
-                unwrapEncrypt.putShort(authenticationKey);
+                ByteBuffer unwrapEncrypt = ByteBuffer.allocate(520);
 
+                //PACKET NUMBERING
+                packetNumber = (float) (packetNumber + 1);
+                unwrapEncrypt.putFloat(packetNumber);
+                //END PACKET NUMBERING
+
+                unwrapEncrypt.putShort(authenticationKey);
                 ByteBuffer plainText = ByteBuffer.wrap(buffer);
                 for (int j = 0; j < buffer.length/4; j++)
                 {
