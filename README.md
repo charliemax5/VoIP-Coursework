@@ -1,1 +1,1 @@
-This is the GitHub Repository for VoIP Coursework in CMP-5037B Networks. The authors of the Coursework are Sam, Ben, Jude, and Charlie.
+Code for DatagramSocket2 included in TextSenderSocket2 and TextReceiverSocket2. Only includes a repetition algorithm that catches missing packets and replays the most recently received one.
