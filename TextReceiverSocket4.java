@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import CMPC3M06.AudioPlayer;
 
 
-public class TextReceiverSocket2 {
+public class TextReceiverSocket4 {
 
     static DatagramSocket receiving_socket;
 
