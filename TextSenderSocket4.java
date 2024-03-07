@@ -14,7 +14,7 @@ import CMPC3M06.AudioRecorder;
 import uk.ac.uea.cmp.voip.*;
 
 
-public class TextSenderSocket2{
+public class TextSenderSocket4{
 
     static DatagramSocket4 sending_socket;
 
