@@ -44,6 +44,8 @@ public class TextReceiverSocket4 {
 
         boolean running = true;
 
+        byte[] repetitionBuffer = new byte[514];//dummy array for receiver based compensation
+
         while (running){
 
             try{
@@ -74,18 +76,22 @@ public class TextReceiverSocket4 {
                     {
                         if (decryptedBlock[i] > 25 || decryptedBlock[i] < -25) //25 seems to be a sweet spot whereby it catches most of the corrupted clicking without losing too much of someone's real voice
                         {
-                            decryptedBlock[i] = 0;
+                            if (i != 0)
+                                decryptedBlock[i] = decryptedBlock[i-1];
+                            else
+                                decryptedBlock[i] = 0;
                         }
                     }
 
                     //play it
                     System.out.println("Playing received audio");
                     player.playBlock(decryptedBlock);
+                    repetitionBuffer = decryptedBlock;
                 }
             }
             catch (SocketTimeoutException e)
             {
-                //on timeout play previously received packet
+                player.playBlock(repetitionBuffer);//on timeout play previously received packet
                 System.out.println(".");
             }
             catch (IOException e){
