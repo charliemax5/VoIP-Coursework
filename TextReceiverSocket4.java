@@ -76,10 +76,16 @@ public class TextReceiverSocket4 {
                     {
                         if (decryptedBlock[i] > 25 || decryptedBlock[i] < -25) //25 seems to be a sweet spot whereby it catches most of the corrupted clicking without losing too much of someone's real voice
                         {
-                            if (i != 0)
-                                decryptedBlock[i] = decryptedBlock[i-1];
-                            else
+//                            System.out.println(i+" is corrupt");
+                            if (i != 0 ) {
+                                decryptedBlock[i] = decryptedBlock[i - 1];
+                            }
+                            else {
+                                if (i != 512)
+                                decryptedBlock[i] = decryptedBlock[i + 1];
+                                else
                                 decryptedBlock[i] = 0;
+                            }
                         }
                     }
 
@@ -92,7 +98,7 @@ public class TextReceiverSocket4 {
             catch (SocketTimeoutException e)
             {
                 player.playBlock(repetitionBuffer);//on timeout play previously received packet
-                System.out.println(".");
+//                System.out.println(".");
             }
             catch (IOException e){
                 System.out.println("ERROR: TextReceiver: Some random IO error occured!");
