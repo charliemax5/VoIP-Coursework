@@ -49,33 +49,66 @@ public class VOIPSocket1Receiver {
 
             try{
                 //Receive a DatagramPacket
-                byte[] buffer = new byte[514];
-                DatagramPacket packet = new DatagramPacket(buffer, 0, 514);
-                receiving_socket.setSoTimeout(33);
+                int interdep = 3; //Interleaving depth
+                int interSqu = interdep * interdep; //Size of the interleaved square variable (4)
 
-                receiving_socket.receive(packet);
+                byte[] buffer = new byte[520];
+                byte[][] interleavProccesing = new byte[interSqu][];
+                byte[] audioP;
+                byte[] audioQ;
+                byte[][] interleavOrdered;
 
-                //get byte block from buffer
-                byte[] audio = buffer;
-                ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
 
-                ByteBuffer cipherText = ByteBuffer.wrap(audio);
-                if (cipherText.getShort() == 10)
-                {
-                    int key = 1073948859;
-                    for (int j = 0; j < audio.length/4; j++)
-                    {
-                        int fourByte = cipherText.getInt();
-                        fourByte = fourByte ^ key;
-                        unwrapDecrypt.putInt(fourByte);
-                    }
-                    byte[] decryptedBlock = unwrapDecrypt.array();
+                for(int k = 0; k < interSqu; k++) {
+                    buffer = new byte[520];
 
-                    //play it
-                    System.out.println("Playing received audio");
-                    player.playBlock(decryptedBlock);
+                    DatagramPacket packet = new DatagramPacket(buffer, 0, 520);
+                    receiving_socket.setSoTimeout(100);
+
+                    receiving_socket.receive(packet);
+
+                    //get byte block from buffer
+                    System.out.println((int) ByteBuffer.wrap(buffer).getFloat());
+                    interleavProccesing[k] = buffer;
+                }
+                System.out.println("Exit loop");
+
+                for (int x = 0; x < interSqu; x++){
+                    System.out.println("Check");
+                    System.out.println((int) ByteBuffer.wrap(interleavProccesing[x]).getFloat());
+                }
+                interleavOrdered = interleaving_VoIP.unpackedArrays(interdep,interleavProccesing);
+
+
+
+                for(int q = 0; q < interSqu; q++) {
+
+                    audioQ = interleavOrdered[q];
+                    ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
+
+                    ByteBuffer cipherText = ByteBuffer.wrap(audioQ);
+
+                    //PACKET NUMBERING
+                    float packetNumber = cipherText.getFloat();
+                    //System.out.println(packetNumber);
+                    //END PACKET NUMBERING
+
+                    if (cipherText.getShort() == 10) {
+                        int key = 1073948859;
+                        for (int j = 0; j < (audioQ.length / 4) - 6; j++) //-6 so increased packet length from packet numbering doesn't interfere
+                        {
+                            int fourByte = cipherText.getInt();
+                            fourByte = fourByte ^ key;
+                            unwrapDecrypt.putInt(fourByte);
+                        }
+                        byte[] decryptedBlock = unwrapDecrypt.array();
+
+                        //play it
+                        System.out.println("Playing received audio");
+                        player.playBlock(decryptedBlock);
 //                    packetCount = packetCount + 1;
 //                    System.out.println(packetCount); //packet count should be 313
+                    }
                 }
             }
             catch (SocketTimeoutException e)

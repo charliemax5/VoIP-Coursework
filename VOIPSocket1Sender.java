@@ -29,7 +29,7 @@ public class VOIPSocket1Sender{
         AudioRecorder recorder = new AudioRecorder();
 
         //Recording time in seconds
-        int recordTime = 10;
+        int recordTime = 30;
         try {
             clientIP = InetAddress.getByName("localhost");
         } catch (UnknownHostException e) {
@@ -68,14 +68,26 @@ public class VOIPSocket1Sender{
         System.out.println("Recording audio...");
         int key = 1073948859; //key should be between 2^30 and 2^31 to cover all bits
         short authenticationKey = 10; //authentication key must be a short so receiver can remove it from packet
+        float packetNumber = -1;
+        int interdep = 3; //Interleaving depth
+        int interSqu = interdep * interdep; //Size of the interleaved square variable (4)
+
+        byte[][] preparedArray = new byte[interSqu][];
+        byte[][] interleavedArray;
 
         for (int i = 0; i < Math.ceil(recordTime / 0.032); i++) {
             try{
 
-                byte[] buffer = recorder.getBlock();
-                ByteBuffer unwrapEncrypt = ByteBuffer.allocate(514);
-                unwrapEncrypt.putShort(authenticationKey);
 
+                byte[] buffer = recorder.getBlock();
+                ByteBuffer unwrapEncrypt = ByteBuffer.allocate(520);
+
+                //PACKET NUMBERING
+                packetNumber = (float) (packetNumber + 1);
+                unwrapEncrypt.putFloat(packetNumber);
+                //END PACKET NUMBERING
+
+                unwrapEncrypt.putShort(authenticationKey);
                 ByteBuffer plainText = ByteBuffer.wrap(buffer);
                 for (int j = 0; j < buffer.length/4; j++)
                 {
@@ -85,12 +97,29 @@ public class VOIPSocket1Sender{
                 }
                 byte[] encryptedBlock = unwrapEncrypt.array();
 
+
+                if (i % interSqu != 0 || i == 0){
+                    preparedArray[i % interSqu] = encryptedBlock;
+
+                }
+                else{
+
+                    //System.out.println("Else loop: "+i);
+                    //System.out.println(Arrays.toString(preparedArray));
+                    interleavedArray = interleaving_VoIP.interleavingArrays3(preparedArray);
+                    for(int k = 0; k < interSqu; k++){
+                        //System.out.println(preparedArray[k]);
+                        DatagramPacket packet = new DatagramPacket(interleavedArray[k], encryptedBlock.length, clientIP, PORT);
+                        sending_socket.send(packet);
+                    }
+
+                    preparedArray = new byte[interSqu][];
+                    preparedArray[i % interSqu] = encryptedBlock;
+                    //Next step is to test the un-packer, then make a 3x3 interleaving square.
+                }
                 //Make a DatagramPacket from it, with client address and port number
-                DatagramPacket packet = new DatagramPacket(encryptedBlock, encryptedBlock.length, clientIP, PORT);
 
                 //Send it
-                sending_socket.send(packet);
-
             } catch (IOException e){
                 System.out.println("ERROR: TextSender: Some random IO error occured!");
                 e.printStackTrace();

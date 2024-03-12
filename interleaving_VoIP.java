@@ -1,4 +1,3 @@
-import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
@@ -10,36 +9,37 @@ public class interleaving_VoIP {
         System.out.println("Interleaved");
         //sortedArray = unpackedArrays(interDepth, interleavedArray);
 
+
     }
 
-    public static byte[][] interleavingArrays(int interleavedDepth, byte[][] preparedArray){
+    public static byte[][] interleavingArrays4(byte[][] preparedArray){
         //"InterleavedDepth" sets the size of the interleaved "block"
-        //Testing with regular ints before using datagram packets
-
+        int interleavedDepth = 4;
         //The squared size is also important for many processes
         int interleavedDepthSquare = interleavedDepth * interleavedDepth;
 
 
-        int packetNumber = 0;
+        int packetNumber;
         //Initializes storage for modulo and division operattions
-        int positionModulo = 0;
-        int positionDivision = 0;
+        int positionModulo;
+        int positionDivision;
 
-
-
-        //Creates the block where data will be stored
+        //Creates the array block where data will be stored
         byte[][] interleavedArray = new byte[interleavedDepthSquare][];
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
         for (int i = 0; i < interleavedDepthSquare; i++) {
 
-            //System.out.println((int) ByteBuffer.wrap(preparedArray[i]).getFloat());
+            //Casts the packet number to int and uses a modulo operation on it to make it fit the array size.
             packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % interleavedDepthSquare;
-            System.out.println(packetNumber);
+            //System.out.println(packetNumber);
+
             positionModulo = packetNumber % interleavedDepth;
             positionDivision = packetNumber / interleavedDepth;
 
             switch(positionModulo){
-                //Can't actually work with multiple numbers yet since switch case would need to be expanded
+                //"Rotates" the array based on the information given in
+                //The position something should appear in the cube can be found through this process
+                //Find the modulo value to find which "row" it should appear on
+                //Then find its division for the coulom
                 case 0:
                     interleavedArray[positionDivision] = preparedArray[i];
                     break;
@@ -53,9 +53,51 @@ public class interleaving_VoIP {
                     interleavedArray[(interleavedDepth*3)+positionDivision] = preparedArray[i];
                     break;
             }
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
+        }
 
+
+        return interleavedArray;
+    }
+
+
+    public static byte[][] interleavingArrays3(byte[][] preparedArray){
+        //"InterleavedDepth" sets the size of the interleaved "block"
+        int interleavedDepth = 3;
+        //The squared size is also important for many processes
+        int interleavedDepthSquare = interleavedDepth * interleavedDepth;
+
+
+        int packetNumber;
+        //Initializes storage for modulo and division operattions
+        int positionModulo;
+        int positionDivision;
+
+        //Creates the array block where data will be stored
+        byte[][] interleavedArray = new byte[interleavedDepthSquare][];
+        for (int i = 0; i < interleavedDepthSquare; i++) {
+
+            //Casts the packet number to int and uses a modulo operation on it to make it fit the array size.
+            packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % interleavedDepthSquare;
+            //System.out.println(packetNumber);
+
+            positionModulo = packetNumber % interleavedDepth;
+            positionDivision = packetNumber / interleavedDepth;
+
+            switch(positionModulo){
+                //"Rotates" the array based on the information given in
+                //The position something should appear in the cube can be found through this process
+                //Find the modulo value to find which "row" it should appear on
+                //Then find its division for the coulom
+                case 0:
+                    interleavedArray[positionDivision] = preparedArray[i];
+                    break;
+                case 2:
+                    interleavedArray[(interleavedDepth*1)+positionDivision] = preparedArray[i];
+                    break;
+                case 1:
+                    interleavedArray[(interleavedDepth*2)+positionDivision] = preparedArray[i];
+                    break;
+            }
         }
 
 
@@ -68,11 +110,11 @@ public class interleaving_VoIP {
         int unpackingNumber = 0;
 
         for (int i = 0; i < interleavedDepthSquare; i++) {
-            unpackingNumber = (int) ByteBuffer.wrap(interleavedArray[i]).getFloat() % interleavedDepthSquare;
+            unpackingNumber = ((int) ByteBuffer.wrap(interleavedArray[i]).getFloat()) % interleavedDepthSquare;
             System.out.println(unpackingNumber);
             //Retrieves number from relevant position and matches it to position in unpacking array
             //Gets the packets ordered number in
-            unpackedArray[unpackingNumber-1] = interleavedArray[i];
+            unpackedArray[unpackingNumber] = interleavedArray[i];
             //-1 to patch the position of data (1-16), to the position in arrays (0-15)
         }
         System.out.println("Sorted");
