@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import CMPC3M06.AudioPlayer;
 
 
-public class TextReceiver {
+public class VOIPSocket3Receiver {
 
     static DatagramSocket receiving_socket;
 
