@@ -1,4 +1,4 @@
-/*
+*
  * TextReceiver.java
  */
 
@@ -17,6 +17,8 @@ import CMPC3M06.AudioPlayer;
 public class VOIPSocket3Receiver {
 
     static DatagramSocket receiving_socket;
+
+    //I couldn't get the .sort method to work so we have this terrible selection sort algorithm instead
 
     public static ArrayList<ByteBuffer> selectionSort(ArrayList<ByteBuffer> list)
     {
@@ -64,7 +66,7 @@ public class VOIPSocket3Receiver {
 
         boolean running = true;
         ArrayList<ByteBuffer> orderedPackets = new ArrayList<>();
-//        int packetCount = 0; //counting for graphs, ignore
+        ByteBuffer catcher = ByteBuffer.allocate(520);
         while (running) {
             while (orderedPackets.size() < 10) {
 
@@ -78,35 +80,23 @@ public class VOIPSocket3Receiver {
 
                     //get byte block from buffer
                     byte[] audio = buffer;
-                    ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
 
                     ByteBuffer cipherText = ByteBuffer.wrap(audio);
-                    cipherText.position(4);
-
-                    //PACKET NUMBERING
-//                    float packetNumber = cipherText.getFloat();
-//                    System.out.println(packetNumber);
-                    //END PACKET NUMBERING
+                    cipherText.position(4); //go past packet number to authentication key
 
                     if (cipherText.getShort() == 10) {
+                        catcher = cipherText;
                         orderedPackets.add(cipherText);
-//                        int key = 1073948859;
-//                        for (int j = 0; j < (audio.length / 4) - 6; j++) //-6 so increased packet length from packet numbering doesn't interfere
-//                        {
-//                            int fourByte = cipherText.getInt();
-//                            fourByte = fourByte ^ key;
-//                            unwrapDecrypt.putInt(fourByte);
-//                        }
-//                        byte[] decryptedBlock = unwrapDecrypt.array();
-
-                        //play it
-//                                            System.out.println("Playing received audio");
-//                                            player.playBlock(decryptedBlock);
-//                                            packetCount = packetCount + 1;
-//                                            System.out.println(packetCount); //packet count should be 313
                     }
                 } catch (SocketTimeoutException e) {
-                    System.out.println(".");
+                    if (orderedPackets.size() > 0)
+                    {
+                        orderedPackets.add(catcher);
+                    }
+                    else //don't fill the array with white noise, mainly mitigates problems at the start
+                    {
+                        System.out.println(".");
+                    }
                 } catch (IOException e) {
                     System.out.println("ERROR: TextReceiver: Some random IO error occured!");
                     e.printStackTrace();
@@ -116,7 +106,7 @@ public class VOIPSocket3Receiver {
             {
 
             }
-            orderedPackets = selectionSort(orderedPackets);
+            orderedPackets = selectionSort(orderedPackets); //sort by packet number
             for (int i = 0; i < orderedPackets.size(); i++)
             {
                 ByteBuffer unwrapDecrypt = ByteBuffer.allocate(520);
@@ -124,16 +114,16 @@ public class VOIPSocket3Receiver {
                 int key = 1073948859;
                 orderedPackets.get(i).position(6);
                 for (int j = 0; j < (520/4) - 6; j++) //-6 so increased packet length from packet numbering doesn't interfere
-                    {
-                        int fourByte = orderedPackets.get(i).getInt();
-                        fourByte = fourByte ^ key;
-                        unwrapDecrypt.putInt(fourByte);
-                    }
+                {
+                    int fourByte = orderedPackets.get(i).getInt();
+                    fourByte = fourByte ^ key;
+                    unwrapDecrypt.putInt(fourByte);
+                }
                 byte[] decryptedBlock = unwrapDecrypt.array();
                 System.out.println("Playing received audio");
                 player.playBlock(decryptedBlock);
             }
-            orderedPackets.clear();
+            orderedPackets.clear(); //must clear arraylist at the end so previous packets don't leak into the next load of 10
         }
         //Close the socket
         receiving_socket.close();
