@@ -1,21 +1,18 @@
+import java.net.DatagramPacket;
+import java.nio.ByteBuffer;
+
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class interleaving_VoIP {
     public static void main(String[] args) {
         // Press Alt+Enter with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
-        int interDepth = 4;
-        int interleavedArray[];
-        int sortedArray[];
-        int prepArray[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-        int prepArray2[] = {1,2,3,4,5,6,7,8,9};
-        interleavedArray = interleavingArrays(interDepth, prepArray);
         System.out.println("Interleaved");
-        sortedArray = unpackedArrays(interDepth, interleavedArray);
+        //sortedArray = unpackedArrays(interDepth, interleavedArray);
 
     }
 
-    public static int[] interleavingArrays(int interleavedDepth, int preparedArray[]){
+    public static byte[][] interleavingArrays(int interleavedDepth, byte[][] preparedArray){
         //"InterleavedDepth" sets the size of the interleaved "block"
         //Testing with regular ints before using datagram packets
 
@@ -23,24 +20,28 @@ public class interleaving_VoIP {
         int interleavedDepthSquare = interleavedDepth * interleavedDepth;
 
 
-
-
+        int packetNumber = 0;
         //Initializes storage for modulo and division operattions
         int positionModulo = 0;
         int positionDivision = 0;
 
+
+
         //Creates the block where data will be stored
-        int interleavedArray[] = new int[interleavedDepthSquare];
+        byte[][] interleavedArray = new byte[interleavedDepthSquare][];
         // Press Shift+F10 or click the green arrow button in the gutter to run the code.
         for (int i = 0; i < interleavedDepthSquare; i++) {
 
-            positionModulo = preparedArray[i] % interleavedDepth;
-            positionDivision = preparedArray[i] / interleavedDepth;
+            //System.out.println((int) ByteBuffer.wrap(preparedArray[i]).getFloat());
+            packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % 16;
+            System.out.println(packetNumber);
+            positionModulo = packetNumber % interleavedDepth;
+            positionDivision = packetNumber / interleavedDepth;
 
             switch(positionModulo){
                 //Can't actually work with multiple numbers yet since switch case would need to be expanded
                 case 0:
-                    interleavedArray[-1+positionDivision] = preparedArray[i];
+                    interleavedArray[positionDivision] = preparedArray[i];
                     break;
                 case 3:
                     interleavedArray[interleavedDepth+positionDivision] = preparedArray[i];
@@ -58,20 +59,21 @@ public class interleaving_VoIP {
         }
 
         for (int i = 0; i < interleavedDepthSquare; i++) {
-            System.out.println(interleavedArray[i]);
+            //System.out.println(interleavedArray[i]);
         }
         return interleavedArray;
     }
 
-    public static int[] unpackedArrays(int interleavedDepth, int interleavedArray[]){
+    public static byte[][] unpackedArrays(int interleavedDepth, byte[][] interleavedArray){
         int interleavedDepthSquare = interleavedDepth * interleavedDepth;
-        int unpackedArray[] = new int[interleavedDepthSquare];
+        byte[][] unpackedArray = new byte[interleavedDepthSquare][];
         int unpackingNumber = 0;
 
         for (int i = 0; i < interleavedDepthSquare; i++) {
-            unpackingNumber = interleavedArray[i];
+            unpackingNumber = (int) ByteBuffer.wrap(interleavedArray[i]).getFloat();
             //Retrieves number from relevant position and matches it to position in unpacking array
-            System.out.println(unpackingNumber);
+
+
             //Numerical testing
             //Gets the packets ordered number in
             unpackedArray[unpackingNumber-1] = interleavedArray[i];
