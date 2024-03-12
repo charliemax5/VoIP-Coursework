@@ -44,7 +44,6 @@ public class VOIPSocket3Sender{
         //We dont need to know its port number as we never send anything to it.
         //We need the try and catch block to make sure no errors occur.
 
-        //DatagramSocket sending_socket;
         try{
             sending_socket = new DatagramSocket3();
         } catch (SocketException e){
@@ -55,15 +54,7 @@ public class VOIPSocket3Sender{
         //***************************************************
 
         //***************************************************
-        //Get a handle to the Standard Input (console) so we can read user input
-
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        //***************************************************
-
-        //***************************************************
         //Main loop.
-
-//        boolean running = true;
 
         System.out.println("Recording audio...");
         int key = 1073948859; //key should be between 2^30 and 2^31 to cover all bits
@@ -77,7 +68,7 @@ public class VOIPSocket3Sender{
                 ByteBuffer unwrapEncrypt = ByteBuffer.allocate(520);
 
                 //PACKET NUMBERING
-                packetNumber = (float) (packetNumber + 1);
+                packetNumber = (packetNumber + 1);
                 unwrapEncrypt.putFloat(packetNumber);
                 //END PACKET NUMBERING
 
