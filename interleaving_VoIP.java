@@ -33,7 +33,7 @@ public class interleaving_VoIP {
         for (int i = 0; i < interleavedDepthSquare; i++) {
 
             //System.out.println((int) ByteBuffer.wrap(preparedArray[i]).getFloat());
-            packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % 16;
+            packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % interleavedDepthSquare;
             System.out.println(packetNumber);
             positionModulo = packetNumber % interleavedDepth;
             positionDivision = packetNumber / interleavedDepth;
@@ -58,9 +58,7 @@ public class interleaving_VoIP {
 
         }
 
-        for (int i = 0; i < interleavedDepthSquare; i++) {
-            //System.out.println(interleavedArray[i]);
-        }
+
         return interleavedArray;
     }
 
@@ -70,11 +68,9 @@ public class interleaving_VoIP {
         int unpackingNumber = 0;
 
         for (int i = 0; i < interleavedDepthSquare; i++) {
-            unpackingNumber = (int) ByteBuffer.wrap(interleavedArray[i]).getFloat();
+            unpackingNumber = (int) ByteBuffer.wrap(interleavedArray[i]).getFloat() % interleavedDepthSquare;
+            System.out.println(unpackingNumber);
             //Retrieves number from relevant position and matches it to position in unpacking array
-
-
-            //Numerical testing
             //Gets the packets ordered number in
             unpackedArray[unpackingNumber-1] = interleavedArray[i];
             //-1 to patch the position of data (1-16), to the position in arrays (0-15)
