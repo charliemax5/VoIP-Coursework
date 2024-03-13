@@ -1,11 +1,7 @@
 /*
- * TextReceiverSocket2.java
+ * VOIPSocket2Receiver.java
  */
 
-/**
- *
- * @author  abj
- */
 import java.net.*;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -29,11 +25,10 @@ public class VOIPSocket2Receiver {
         //***************************************************
         //Open a socket to receive from on port PORT
 
-        //DatagramSocket receiving_socket;
         try{
             receiving_socket = new DatagramSocket(PORT);
         } catch (SocketException e){
-            System.out.println("ERROR: TextReceiver: Could not open UDP socket to receive from.");
+            System.err.println("ERROR: TextReceiver: Could not open UDP socket to receive from.");
             e.printStackTrace();
             System.exit(0);
         }
@@ -84,7 +79,7 @@ public class VOIPSocket2Receiver {
                 player.playBlock(repetitionBuffer);
             }
             catch (IOException e){
-                System.out.println("ERROR: TextReceiver: Some random IO error occured!");
+                System.err.println("ERROR: IO error occured: ");
                 e.printStackTrace();
             }
         }
