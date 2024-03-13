@@ -1,10 +1,5 @@
 /*
- * TextSender.java
- */
-
-/**
- *
- * @author  abj
+ * VOIPSocket1Sender.java
  */
 import java.net.*;
 import java.io.*;
@@ -33,7 +28,7 @@ public class VOIPSocket1Sender{
         try {
             clientIP = InetAddress.getByName("localhost");
         } catch (UnknownHostException e) {
-            System.out.println("ERROR: TextSender: Could not find client IP");
+            System.err.println("ERROR: TextSender: Could not find client IP");
             e.printStackTrace();
             System.exit(0);
         }
@@ -48,22 +43,18 @@ public class VOIPSocket1Sender{
         try{
             sending_socket = new DatagramSocket2();
         } catch (SocketException e){
-            System.out.println("ERROR: TextSender: Could not open UDP socket to send from.");
+            System.err.println("ERROR: TextSender: Could not open UDP socket to send from.");
             e.printStackTrace();
             System.exit(0);
         }
         //***************************************************
 
         //***************************************************
-        //Get a handle to the Standard Input (console) so we can read user input
 
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         //***************************************************
 
         //***************************************************
         //Main loop.
-
-//        boolean running = true;
 
         System.out.println("Recording audio...");
         int key = 1073948859; //key should be between 2^30 and 2^31 to cover all bits
