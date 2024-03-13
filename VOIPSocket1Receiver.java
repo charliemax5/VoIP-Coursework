@@ -44,6 +44,7 @@ public class VOIPSocket1Receiver {
 
         boolean running = true;
 //        int packetCount = 0; counting for graphs, ignore
+        byte[] repetitionBuffer = new byte[514];//dummy array for receiver based compensation
 
         while (running){
 
@@ -108,11 +109,13 @@ public class VOIPSocket1Receiver {
                         player.playBlock(decryptedBlock);
 //                    packetCount = packetCount + 1;
 //                    System.out.println(packetCount); //packet count should be 313
+                        repetitionBuffer = decryptedBlock;
                     }
                 }
             }
             catch (SocketTimeoutException e)
             {
+                player.playBlock(repetitionBuffer);//on timeout play previously received packet
                 System.out.println(".");
             }
             catch (IOException e){
