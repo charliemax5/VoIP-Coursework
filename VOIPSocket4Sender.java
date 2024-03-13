@@ -29,7 +29,7 @@ public class VOIPSocket4Sender{
         AudioRecorder recorder = new AudioRecorder();
 
         //Recording time in seconds
-        int recordTime = 10;
+        int recordTime = 30*60;
         try {
             clientIP = InetAddress.getByName("localhost");
         } catch (UnknownHostException e) {
