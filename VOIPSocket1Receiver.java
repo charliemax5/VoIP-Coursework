@@ -1,10 +1,5 @@
 /*
- * TextReceiver.java
- */
-
-/**
- *
- * @author  abj
+ * VOIPSocket1Receiver.java
  */
 import java.net.*;
 import java.io.*;
@@ -29,11 +24,10 @@ public class VOIPSocket1Receiver {
         //***************************************************
         //Open a socket to receive from on port PORT
 
-        //DatagramSocket receiving_socket;
         try{
             receiving_socket = new DatagramSocket(PORT);
         } catch (SocketException e){
-            System.out.println("ERROR: TextReceiver: Could not open UDP socket to receive from.");
+            System.err.println("ERROR: TextReceiver: Could not open UDP socket to receive from.");
             e.printStackTrace();
             System.exit(0);
         }
@@ -43,7 +37,6 @@ public class VOIPSocket1Receiver {
         //Main loop.
 
         boolean running = true;
-//        int packetCount = 0; counting for graphs, ignore
 
         while (running){
 
@@ -60,7 +53,7 @@ public class VOIPSocket1Receiver {
                 ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
 
                 ByteBuffer cipherText = ByteBuffer.wrap(audio);
-                if (cipherText.getShort() == 10)
+                if (cipherText.getShort() == 10) //authentication key check
                 {
                     int key = 1073948859;
                     for (int j = 0; j < audio.length/4; j++)
@@ -74,8 +67,6 @@ public class VOIPSocket1Receiver {
                     //play it
                     System.out.println("Playing received audio");
                     player.playBlock(decryptedBlock);
-//                    packetCount = packetCount + 1;
-//                    System.out.println(packetCount); //packet count should be 313
                 }
             }
             catch (SocketTimeoutException e)
@@ -83,7 +74,7 @@ public class VOIPSocket1Receiver {
                 System.out.println(".");
             }
             catch (IOException e){
-                System.out.println("ERROR: TextReceiver: Some random IO error occured!");
+                System.err.println("ERROR: IO Error occured.");
                 e.printStackTrace();
             }
         }
