@@ -104,6 +104,47 @@ public class interleaving_VoIP {
         return interleavedArray;
     }
 
+    public static byte[][] interleavingArrays2(byte[][] preparedArray){
+        //"InterleavedDepth" sets the size of the interleaved "block"
+        int interleavedDepth = 2;
+        //The squared size is also important for many processes
+        int interleavedDepthSquare = interleavedDepth * interleavedDepth;
+
+
+        int packetNumber;
+        //Initializes storage for modulo and division operattions
+        int positionModulo;
+        int positionDivision;
+
+        //Creates the array block where data will be stored
+        byte[][] interleavedArray = new byte[interleavedDepthSquare][];
+        for (int i = 0; i < interleavedDepthSquare; i++) {
+
+            //Casts the packet number to int and uses a modulo operation on it to make it fit the array size.
+            packetNumber = (int) ByteBuffer.wrap(preparedArray[i]).getFloat() % interleavedDepthSquare;
+            //System.out.println(packetNumber);
+
+            positionModulo = packetNumber % interleavedDepth;
+            positionDivision = packetNumber / interleavedDepth;
+
+            switch(positionModulo){
+                //"Rotates" the array based on the information given in
+                //The position something should appear in the cube can be found through this process
+                //Find the modulo value to find which "row" it should appear on
+                //Then find its division for the coulom
+                case 0:
+                    interleavedArray[positionDivision] = preparedArray[i];
+                    break;
+                case 1:
+                    interleavedArray[(interleavedDepth*1)+positionDivision] = preparedArray[i];
+                    break;
+            }
+        }
+
+
+        return interleavedArray;
+    }
+
     public static byte[][] unpackedArrays(int interleavedDepth, byte[][] interleavedArray){
         int interleavedDepthSquare = interleavedDepth * interleavedDepth;
         byte[][] unpackedArray = new byte[interleavedDepthSquare][];
