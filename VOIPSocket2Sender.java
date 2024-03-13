@@ -1,10 +1,5 @@
 /*
- * TextSenderSocket2.java
- */
-
-/**
- *
- * @author  abj
+ * VOIPSocket2Sender.java
  */
 import java.net.*;
 import java.io.*;
@@ -33,7 +28,7 @@ public class VOIPSocket2Sender{
         try {
             clientIP = InetAddress.getByName("localhost");
         } catch (UnknownHostException e) {
-            System.out.println("ERROR: TextSender: Could not find client IP");
+            System.err.println("ERROR: TextSender: Could not find client IP");
             e.printStackTrace();
             System.exit(0);
         }
@@ -48,16 +43,14 @@ public class VOIPSocket2Sender{
         try{
             sending_socket = new DatagramSocket2();
         } catch (SocketException e){
-            System.out.println("ERROR: TextSender: Could not open UDP socket to send from.");
+            System.err.println("ERROR: TextSender: Could not open UDP socket to send from.");
             e.printStackTrace();
             System.exit(0);
         }
         //***************************************************
 
         //***************************************************
-        //Get a handle to the Standard Input (console) so we can read user input
 
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         //***************************************************
 
         //***************************************************
@@ -92,7 +85,7 @@ public class VOIPSocket2Sender{
                 sending_socket.send(packet);
 
             } catch (IOException e){
-                System.out.println("ERROR: TextSender: Some random IO error occured!");
+                System.err.println("ERROR: IO error occured:");
                 e.printStackTrace();
             }
         }
