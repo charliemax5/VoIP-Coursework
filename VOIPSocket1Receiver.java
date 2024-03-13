@@ -83,14 +83,16 @@ public class VOIPSocket1Receiver {
 
         */
                 for(int q = 0; q < interSqu; q++) {
-                    for (int x = 0; x < interSqu; x++) {
+                    int x = 0;
+                    while (audioQ != interleavProccesing[x] || x == 16) {
                         unpackingNumber = ((int) ByteBuffer.wrap(interleavProccesing[x]).getFloat()) % interSqu;
                         if (unpackingNumber == q){
                             audioQ = interleavProccesing[x];
+                            break;
                         }
-
+                        x++;
                     }
-                    unpackingNumber = ((int) ByteBuffer.wrap(interleavProccesing[q]).getFloat()) % interSqu;
+                    //unpackingNumber = ((int) ByteBuffer.wrap(interleavProccesing[q]).getFloat()) % interSqu;
                     //
                     //audioQ = interleavOrdered[q];
                     ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
