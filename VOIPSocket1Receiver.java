@@ -44,7 +44,6 @@ public class VOIPSocket1Receiver {
 
         boolean running = true;
 //        int packetCount = 0; counting for graphs, ignore
-        byte[] repetitionBuffer = new byte[514];//dummy array for receiver based compensation
 
         while (running){
 
@@ -56,9 +55,9 @@ public class VOIPSocket1Receiver {
                 byte[] buffer = new byte[520];
                 byte[][] interleavProccesing = new byte[interSqu][];
                 byte[] audioP;
-                byte[] audioQ;
+                byte[] audioQ = new byte[520];
                 byte[][] interleavOrdered;
-
+                int unpackingNumber = 0;
 
                 for(int k = 0; k < interSqu; k++) {
                     buffer = new byte[520];
@@ -69,22 +68,31 @@ public class VOIPSocket1Receiver {
                     receiving_socket.receive(packet);
 
                     //get byte block from buffer
-                    System.out.println((int) ByteBuffer.wrap(buffer).getFloat());
+                    //System.out.println((int) ByteBuffer.wrap(buffer).getFloat());
                     interleavProccesing[k] = buffer;
                 }
                 System.out.println("Exit loop");
 
+                /*
                 for (int x = 0; x < interSqu; x++){
                     System.out.println("Check");
                     System.out.println((int) ByteBuffer.wrap(interleavProccesing[x]).getFloat());
                 }
                 interleavOrdered = interleaving_VoIP.unpackedArrays(interdep,interleavProccesing);
+                System.out.println("Array should be under here");
 
-
-
+        */
                 for(int q = 0; q < interSqu; q++) {
+                    for (int x = 0; x < interSqu; x++) {
+                        unpackingNumber = ((int) ByteBuffer.wrap(interleavProccesing[x]).getFloat()) % interSqu;
+                        if (unpackingNumber == q){
+                            audioQ = interleavProccesing[x];
+                        }
 
-                    audioQ = interleavOrdered[q];
+                    }
+                    unpackingNumber = ((int) ByteBuffer.wrap(interleavProccesing[q]).getFloat()) % interSqu;
+                    //
+                    //audioQ = interleavOrdered[q];
                     ByteBuffer unwrapDecrypt = ByteBuffer.allocate(buffer.length);
 
                     ByteBuffer cipherText = ByteBuffer.wrap(audioQ);
@@ -105,17 +113,15 @@ public class VOIPSocket1Receiver {
                         byte[] decryptedBlock = unwrapDecrypt.array();
 
                         //play it
-                        System.out.println("Playing received audio");
+                        //System.out.println("Playing received audio");
                         player.playBlock(decryptedBlock);
 //                    packetCount = packetCount + 1;
 //                    System.out.println(packetCount); //packet count should be 313
-                        repetitionBuffer = decryptedBlock;
                     }
                 }
             }
             catch (SocketTimeoutException e)
             {
-                player.playBlock(repetitionBuffer);//on timeout play previously received packet
                 System.out.println(".");
             }
             catch (IOException e){
